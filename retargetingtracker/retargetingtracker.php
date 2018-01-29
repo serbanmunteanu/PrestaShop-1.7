@@ -31,7 +31,8 @@ include(dirname(__FILE__) . '/lib/Client.php');
 
 class RetargetingTracker extends Module
 {
-
+      const ELEMENT = '<div id="%s"></div>';
+      const SEARCH_ELEMENT = '<div id=%s type=%s></div>';
       protected $js_state = 0;
       protected $eligible = 0;
       protected $filterable = 1;
@@ -83,7 +84,15 @@ class RetargetingTracker extends Module
               $this->registerHook('displayOrderConfirmation') &&
               $this->registerHook('actionAuthentication') &&
               $this->registerHook('actionCustomerAccountAdd') &&
-              $this->registerHook('displayFooterProduct');
+              $this->registerHook('displayFooterProduct')&&
+              $this->registerHook('displayReHome') &&
+              $this->registerHook('displayCategory') &&
+              $this->registerHook('displayProduct') &&
+              $this->registerHook('displayCheckout') &&
+              $this->registerHook('displayThankyou') &&
+              $this->registerHook('displayOutOfStock') &&
+              $this->registerHook('displayReSearch') &&
+              $this->registerHook('display404') ;
           } else {
               return parent::install() &&
               Configuration::updateValue('ra_apikey', '') &&
@@ -107,7 +116,15 @@ class RetargetingTracker extends Module
               $this->registerHook('actionCartSave') &&
               $this->registerHook('actionCarrierProcess') &&
               $this->registerHook('authentication') &&
-              $this->registerHook('createAccount');
+              $this->registerHook('createAccount') &&
+              $this->registerHook('displayReHome') &&
+              $this->registerHook('displayCategory') &&
+              $this->registerHook('displayProduct') &&
+              $this->registerHook('displayCheckout') &&
+              $this->registerHook('displayThankyou') &&
+              $this->registerHook('displayOutOfStock') &&
+              $this->registerHook('displayReSearch') &&
+              $this->registerHook('display404') ;
           }
       }
       public function uninstall()
@@ -591,7 +608,8 @@ class RetargetingTracker extends Module
               }
               unset($this->context->cookie->ra_cart);
           }
-          
+        
+   
           
           $controllerName = Tools::getValue('controller');
           
@@ -700,7 +718,115 @@ class RetargetingTracker extends Module
           
           return $resultProducts;
       }
+       
       
+    /*
+          Function return type of page for recommendation engine Hook functions
+          Exemple : xxxxx.xx/homepage , xxxxx.xx/productpage   
+
+    */   
+    public  static function get_id_page($id,$type='default')
+     {
+        if(!$id) return;
+        switch($type) 
+         {      
+             case 'search' :
+                    return sprintf(self::SEARCH_ELEMENT,$id,$type);
+                    break;
+             default :
+                    return sprint(self::ELEMENT,$id);
+                    break;
+         }
+    }
+    /*
+       
+      ---------->Recommendation Engine for  Home Page <------------------
+
+      */
+
+      public function hookDisplayReHome() 
+      {
+         return self::get_id_page("retargeting-recommeng-home-page");
+      }     
+      
+      /*
+       
+      ---------->Recommendation Engine for Category Page <-------------------
+
+      */
+
+      public function hookDisplayCategory() 
+      {
+         return self::get_id_page("retargeting-recommeng-category-page");
+      }
+
+       /*
+       
+      ---------->Recommendation Engine for  Product Page <------------------
+
+      */
+
+      public function hookDisplayProduct() 
+      {
+         return self::get_id_page("retargeting-recommeng-product-page");
+      }
+      
+       /*
+       
+      ---------->Recommendation Engine for  Checkout Page <------------------
+
+      */
+
+      public function hookDisplayCheckout() 
+      {
+         return self::get_id_page("retargeting-recommeng-checkout-page");
+      }
+      
+       /*
+       
+      ---------->Recommendation Engine for  Thankyou Page <------------------
+
+      */
+
+      public function hookDisplayThankyou() 
+      {
+         return self::get_id_page("retargeting-recommeng-thank-you-page");
+      }
+      
+       /*
+       
+      ---------->Recommendation Engine for Out Of Stock Page <---------------
+
+      */
+      
+      public function hookDisplayOutOfStock() 
+      {
+         return self::get_id_page("retargeting-recommeng-out-of-stock-page");
+      }
+      
+      /*
+       
+      ---------->Recommendation Engine for Search Page <---------------
+
+      */
+
+
+      public function hookDisplayReSearch() 
+      {
+         return self::get_id_page("retargeting-recommeng-search-page",'search');
+      }
+      
+      /*
+       
+      ---------->Recommendation Engine for Not Found Page <---------------
+
+      */
+
+      public function hookDisplay404() 
+      {
+         return self::get_id_page("retargeting-recommeng-not-found-page");
+      }
+
       public function hookdisplayOrderConfirmation($params)
       {
           $order = $params['order'];
