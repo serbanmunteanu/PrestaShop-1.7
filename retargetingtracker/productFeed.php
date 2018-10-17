@@ -26,23 +26,32 @@
 include(dirname(__FILE__) . '/../../config/config.inc.php');
 include(dirname(__FILE__) . '/../../init.php');
 
+header("Content-Type: application/json");
+
 $products = ProductCore::getProducts(1, 0, 0, "id_product", "asc");
 $array = [];
 
+
 foreach ($products as $product => $value) {
-        $retargetingFeed = [
-            'id' => $value['id_product'],
-            'price' => number_format((float)$value['price'], 2, '.', ''),
-            'promo' => number_format((float)$value['wholesale_price'], 2, '.', ''),
-            'promo_price_end_date' => null,
-            'inventory' => [
-                'variations' => false,
-                'stock' => ProductCore::getQuantity($value['id_product']) > 0 ? true : false
-            ],
-            'user_groups' => false,
-            'product_availability' => null
-        ];
-        $array[] = $retargetingFeed;
+
+    $id = $value['id_product'];
+    $price = floatval($value['price']);
+    $promo = ProductCore::getPriceStatic($id) == $price ? 0 : ProductCore::getPriceStatic($id);
+    $stock = ProductCore::getQuantity($value['id_product']) > 0 ? true : false;
+
+    $retargetingFeed = [
+        'id' => $id,
+        'price' => $price,
+        'promo' => $promo,
+        'promo_price_end_date' => null,
+        'inventory' => [
+            'variations' => false,
+            'stock' => $stock
+        ],
+        'user_groups' => false,
+        'product_availability' => null
+    ];
+    $array[] = $retargetingFeed;
 }
-    
+
 echo json_encode($array);
